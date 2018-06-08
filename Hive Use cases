@@ -81,3 +81,23 @@ WHERE
       parq.id IS NULL ;
 
 ---------------------------------------------------------------------------------------------------------------------
+Removing duplicates from a table
+=================
+drop table d_sap_crm.test_duplicates purge;
+create table d_sap_crm.test_duplicates(
+id int,
+name string,
+sal int);
+
+insert into table d_sap_crm.test_duplicates values(1,'a',10);
+insert into table d_sap_crm.test_duplicates values(2,'b',20);
+insert into table d_sap_crm.test_duplicates values(1,'a',10);
+insert into table d_sap_crm.test_duplicates values(3,'c',30);
+insert into table d_sap_crm.test_duplicates values(2,'b',20);
+
+select * from d_sap_crm.test_duplicates;
+
+
+
+insert overwrite table d_sap_crm.test_duplicates select distinct * from d_sap_crm.test_duplicates;
+---------------------------------------------------------------------------------------------------------------
