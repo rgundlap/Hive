@@ -1,0 +1,83 @@
+drop table d_sap_ecc.example1 purge;
+create table d_sap_ecc.example1
+(
+id int,
+supplier string,
+date_pur string
+);
+drop table d_sap_ecc.example2 purge;
+create table d_sap_ecc.example2
+(
+salary int,
+monthly_target int,
+id int
+);
+
+INSERT INTO TABLE  d_sap_ecc.example1 VALUES  (1,"TV","10/10/17"), (2,"REMOTE","07/07/17"), (3,"TV","07/08/17");
+
+SELECT * FROM d_sap_ecc.example1;
+
+INSERT INTO TABLE  d_sap_ecc.example2 VALUES  (10000,20000,1), (20000,20000,2), (30000,43000,3), (40000,30000,1),( 50000,26000,2),
+(60000,41000,3);
+
+SELECT * FROM d_sap_ecc.example2;
+select temp_table.* ,a2.salary
+from
+        (select max(a2.monthly_target) as monthly_target_value, a1.id as id
+            from d_sap_ecc.example1 a1 , d_sap_ecc.example2 a2
+            where a1.id = a2.id
+            group by a1.id
+            sort by a1.id) as temp_table, example2 as a2
+            
+where temp_table.id = a2.id and temp_table.monthly_target_value = a2.monthly_target
+sort by temp_table.id
+
+------------------------------------------------------------------------------------------------------------
+Incremental logic
+------------
+
+drop table d_sap_crm.practise_text purge ;
+drop table d_sap_crm.practise_parq purge ;
+create table d_sap_crm.practise_text(
+id int,
+name string,
+sal int);
+
+create table d_sap_crm.practise_parq(
+id int,
+name string,
+sal int);
+
+insert into table d_sap_crm.practise_parq values(1,'a',1000);
+insert into table d_sap_crm.practise_parq values(2,'b',2000);
+insert into table d_sap_crm.practise_parq values(3,'c',3000);
+
+select * from d_sap_crm.practise_parq;
+
+insert into table d_sap_crm.practise_text values(1,'a1',1000)
+insert into table d_sap_crm.practise_text values(4,'d',4000)
+insert into table d_sap_crm.practise_text values(5,'e',5000)
+
+select * from d_sap_crm.practise_text;
+
+
+select 	IF(text.id IS NOT NULL, text.id, parq.id) AS id,
+		IF(text.name IS NOT NULL, text.name, parq.name) AS name,
+		parq.sal as  sal
+   FROM
+		d_sap_crm.practise_parq parq
+   LEFT OUTER JOIN
+		d_sap_crm.practise_text text   ON parq.id=text.id       
+UNION ALL
+select	IF(parq.id IS  NULL, text.id, parq.id) AS id,
+		IF(parq.name IS  NULL, text.name, parq.name) AS name,
+		IF(parq.sal IS  NULL, text.sal, parq.sal) AS sal
+FROM
+		d_sap_crm.practise_text text
+LEFT OUTER JOIN
+		d_sap_crm.practise_parq parq   ON text.id=parq.id
+  
+WHERE
+      parq.id IS NULL ;
+
+---------------------------------------------------------------------------------------------------------------------
